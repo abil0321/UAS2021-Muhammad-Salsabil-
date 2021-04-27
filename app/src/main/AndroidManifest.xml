@@ -12,7 +12,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MuhammadSalsabilUAS2021"
         android:usesCleartextTraffic="true">
-        <activity android:name=".AllActivity.MainActivity">
+        <activity android:name=".AllActivity.MainActivity"></activity>
+        <activity android:name=".AllActivity.SplashScreeenActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

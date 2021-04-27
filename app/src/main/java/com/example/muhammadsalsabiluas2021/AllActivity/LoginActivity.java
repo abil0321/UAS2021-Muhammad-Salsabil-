@@ -23,84 +23,99 @@ import retrofit2.Response;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private EditText nama;
-    private EditText password;
+    private EditText namaL;
+    private EditText passwordL;
 
-    private Button btnLogin;
+    private Button btnLoginL;
+
+//    private ProgressBar loading;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        setContentView(R.layout.activity_main);
 
-        nama = findViewById(R.id.lgn_nama);
-        password = findViewById(R.id.lgn_password);
-        btnLogin = findViewById(R.id.btnLogin);
+        namaL = findViewById(R.id.lgn_nama);
+        passwordL = findViewById(R.id.lgn_password);
 
-        btnLogin.setOnClickListener(new View.OnClickListener() {
+//        loading = findViewById(R.id.loading);
+
+        btnLoginL = findViewById(R.id.btnLogin);
+        btnLoginL.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String name = nama.getText().toString();
-                String passwordL = password.getText().toString();
-                if (name.isEmpty()) {
-                    nama.setError("nama Empty");
+
+                String namaS = namaL.getText().toString();
+                String passwordS = passwordL.getText().toString();
+
+                if (namaS.isEmpty()) {
+                    passwordL.setError("Email Empty");
                     return;
                 }
 
-                if (passwordL.isEmpty()) {
-                    password.setError("Password Empty");
+                if (passwordS.isEmpty()) {
+                    passwordL.setError("Password Empty");
                     return;
                 }
 
-                Utils.hideSoftKey(nama);
+                Utils.hideSoftKey(namaL);
 
-                doLogin(name, passwordL);
+                doLogin(namaS, passwordS);
             }
         });
     }
-    private void doLogin(final String namad, String passwordd){
 
-        nama.setEnabled(false);
-        password.setEnabled(false);
-        btnLogin.setEnabled(false);
+    private void doLogin(final String namaP, String passwordP) {
 
-        String authorization = "Basic " + Utils.base64Encode(namad, passwordd);
+//        loading.setVisibility(View.VISIBLE);
 
-        ServiceClient.buildServiceClient().login(authorization).enqueue(new Callback<AuthorizationResponse>() {
-            @Override
-            public void onResponse(Call<AuthorizationResponse> call, Response<AuthorizationResponse> response) {
-                if (response.isSuccessful()) {
+        namaL.setEnabled(false);
+        passwordL.setEnabled(false);
+        btnLoginL.setEnabled(false);
 
-                    AuthorizationResponse auth = response.body();
+        String authorization = "Basic " + Utils.base64Encode(namaP, passwordP);
 
-                    UserPreferences.setTokenUser(LoginActivity.this, auth.getToken());
-                    UserPreferences.setUserId(HomePage.this, auth.getLoggedInUser().getId());
-                    UserPreferences.hasLogin(HomePage.this);
+        ServiceClient
+                .buildServiceClient()
+                .login(authorization)
+                .enqueue(new Callback<AuthorizationResponse>() {
+                    @Override
+                    public void onResponse(Call<AuthorizationResponse> call, Response<AuthorizationResponse> response) {
 
-                    startActivity(new Intent(HomePage.this, UserInfoActivity.class));
-                    finish();
+                        if (response.isSuccessful()) {
 
-                } else {
-                    Toast.makeText(HomePage.this, "Unknown login or wrong password for login " + nama, Toast.LENGTH_SHORT).show();
-                    Log.d("onResponse", "onResponse: " + response.message());
+                            AuthorizationResponse auth = response.body();
 
+                            UserPreferences.setTokenUser(LoginActivity.this, auth.getToken());
+                            UserPreferences.setUserId(MainActivity.this, auth.getLoggedInUser().getId());
+                            UserPreferences.hasLogin(MainActivity.this);
 
-                    nama.setEnabled(true);
-                    password.setEnabled(true);
-                    btnLogin.setEnabled(true);
-                }
-            }
+                            startActivity(new Intent(MainActivity.this, UserInfoActivity.class));
+                            finish();
 
-            @Override
-            public void onFailure(Call<AuthorizationResponse> call, Throwable t) {
-                Toast.makeText(HomePage.this, "Something Wrong!", Toast.LENGTH_SHORT).show();
-                Log.d("onFailure", "onFailure: " + t.getMessage());
+                        } else {
+                            Toast.makeText(MainActivity.this, "Unknown login or wrong password for login " + namaP, Toast.LENGTH_SHORT).show();
+                            Log.d("onResponse", "onResponse: " + response.message());
 
-                nama.setEnabled(true);
-                password.setEnabled(true);
-                btnLogin.setEnabled(true);
-            }
-        });
+//                            loading.setVisibility(View.GONE);
 
+                            namaL.setEnabled(true);
+                            passwordL.setEnabled(true);
+                            btnLoginL.setEnabled(true);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<AuthorizationResponse> call, Throwable t) {
+                        Toast.makeText(MainActivity.this, "Something Wrong!", Toast.LENGTH_SHORT).show();
+                        Log.d("onFailure", "onFailure: " + t.getMessage());
+
+//                        loading.setVisibility(View.VISIBLE);
+
+                        namaL.setEnabled(true);
+                        passwordL.setEnabled(true);
+                        btnLoginL.setEnabled(true);
+                    }
+                });
     }
 }
